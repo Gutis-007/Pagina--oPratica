@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from .models import Livro
+from .models import Livro, Autor, Categoria
 
 class LivroFilter(filters.FilterSet):
     titulo = filters.CharFilter(lookup_expr='icontains')
@@ -9,3 +9,18 @@ class LivroFilter(filters.FilterSet):
     class Meta:
         model = Livro
         fields = ['titulo', 'autor', 'categoria']
+
+
+class AutorFilter(filters.FilterSet):
+    nome = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Autor
+        fields = ['nome']
+
+class CategoriaFilter(filters.FilterSet):
+    nome = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Categoria
+        fields = ['nome']
