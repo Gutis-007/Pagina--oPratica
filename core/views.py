@@ -1,6 +1,6 @@
 from rest_framework import generics
-from .models import Livro, Autor, Categoria
-from .serializers import LivroSerializer, AutorSerializer, CategoriaSerializer
+from .models import Livro, Autor, Categoria, Colecao
+from .serializers import LivroSerializer, AutorSerializer, CategoriaSerializer, ColecaoSerializer
 from .filters import LivroFilter, AutorFilter, CategoriaFilter
 
 class LivroList(generics.ListCreateAPIView):
@@ -41,3 +41,37 @@ class CategoriaDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Categoria.objects.all()  # Corrigido para Categoria
     serializer_class = CategoriaSerializer
     name = "categoria-detail"
+
+
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from .models import Colecao
+from .serializers import ColecaoSerializer
+from .custom_permissions import IsColecionador
+
+class ColecaoList(generics.ListCreateAPIView):
+    """
+    Listar todas as coleções e permitir a criação para o usuário autenticado.
+
+    - Qualquer usuário autenticado pode listar todas as coleções.
+    - Apenas o usuário autenticado pode criar uma nova coleção.
+    """
+    queryset = Colecao.objects.all()
+    serializer_class = ColecaoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Vincula a nova coleção ao usuário autenticado
+        serializer.save(colecionador=self.request.user)
+
+
+class ColecaoDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Visualizar, atualizar ou excluir uma coleção.
+
+    - Qualquer usuário autenticado pode visualizar qualquer coleção.
+    - Apenas o colecionador pode editar ou excluir a coleção.
+    """
+    queryset = Colecao.objects.all()
+    serializer_class = ColecaoSerializer
+    permission_classes = [IsAuthenticated, IsColecionador]
